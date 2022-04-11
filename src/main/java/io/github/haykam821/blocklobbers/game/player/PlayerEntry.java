@@ -3,11 +3,11 @@ package io.github.haykam821.blocklobbers.game.player;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.haykam821.blocklobbers.BlockLobbers;
 import io.github.haykam821.blocklobbers.game.lobbable.Lobbable;
+import io.github.haykam821.blocklobbers.game.lobbable.LobbableEntity;
 import io.github.haykam821.blocklobbers.game.phase.BlockLobbersActivePhase;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.inventory.Inventory;
@@ -22,7 +22,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
@@ -87,14 +86,13 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent {
 			this.lobbables.remove(0);
 			this.updateHotbar();
 
-			BlockPos pos = new BlockPos(player.getEyePos());
-			BlockState state = lobbable.getBlock().getDefaultState();
+			LobbableEntity entity = new LobbableEntity(BlockLobbers.LOBBABLE_ENTITY_TYPE, player.getWorld(), lobbable);
+			entity.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
 
-			Entity entity = FallingBlockEntity.spawnFromBlock(player.getWorld(), pos, state);
-
-			Vec3d facing = Vec3d.fromPolar(player.getPitch() - 20, player.getYaw()).multiply(0.8);
-			entity.setVelocity(player.getVelocity().add(facing));
+			entity.setVelocity(player, player.getPitch(), player.getYaw(), 0, 0.8f, 0);
 			entity.velocityModified = true;
+			
+			player.getWorld().spawnEntity(entity);
 		}
 
 		return TypedActionResult.fail(stack);

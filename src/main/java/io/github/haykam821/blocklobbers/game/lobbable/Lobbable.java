@@ -1,6 +1,7 @@
 package io.github.haykam821.blocklobbers.game.lobbable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemStack.TooltipSection;
@@ -15,6 +16,11 @@ public class Lobbable {
 
 	public Block getBlock() {
 		return this.block;
+	}
+
+	public int getRawId() {
+		BlockState state = this.block.getDefaultState();
+		return Block.getRawIdFromState(state);
 	}
 
 	public ItemStack createStack(boolean top) {

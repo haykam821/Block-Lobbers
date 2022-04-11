@@ -1,0 +1,58 @@
+package io.github.haykam821.blocklobbers.game.lobbable;
+
+import eu.pb4.polymer.api.entity.PolymerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.thrown.ThrownEntity;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
+
+public class LobbableEntity extends ThrownEntity implements PolymerEntity {
+	private final Lobbable lobbable;
+
+	public LobbableEntity(EntityType<? extends LobbableEntity> entityType, World world, Lobbable lobbable) {
+		super(entityType, world);
+		this.lobbable = lobbable;
+	}
+
+	public LobbableEntity(EntityType<? extends LobbableEntity> entityType, World world) {
+		this(entityType, world, new Lobbable(Blocks.AIR));
+	}
+
+	@Override
+	protected void onBlockHit(BlockHitResult hit) {
+		world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, new BlockPos(hit.getBlockPos()), this.lobbable.getRawId());
+		this.discard();
+	}
+
+	@Override
+	protected void onEntityHit(EntityHitResult hit) {
+		world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, new BlockPos(hit.getEntity().getEyePos()), this.lobbable.getRawId());
+		this.discard();
+	}
+
+	@Override
+	public EntityType<?> getPolymerEntityType() {
+		return EntityType.FALLING_BLOCK;
+	}
+	
+	@Override
+	public Packet<?> createSpawnPacket() {
+		return new EntitySpawnS2CPacket(this, this.lobbable.getRawId());
+	}
+
+	@Override
+	protected void initDataTracker() {
+		return;
+	}
+
+	@Override
+	protected float getGravity() {
+		return 0.05f;
+	}
+}
