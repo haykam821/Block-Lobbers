@@ -1,0 +1,8 @@
+{
+	"game.blocklobbers.construction_block_lobbers": "Block Lobbers: Construction",
+	"gameType.blocklobbers.block_lobbers": "Block Lobbers",
+	"text.blocklobbers.eliminated": "%s has been eliminated!",
+	"text.blocklobbers.no_winners": "Nobody won the game!",
+	"text.blocklobbers.template_load_failed": "Failed to load the map template",
+	"text.blocklobbers.win": "%s has won the game!"
+}

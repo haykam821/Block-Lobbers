@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "blocklobbers",
+	"version": "${version}",
+	"name": "Block Lobbers",
+	"description": "A resourceful knockback arena minigame for Minecraft.",
+	"authors": [
+		"haykam821"
+	],
+	"contact": {
+		"homepage": "https://github.com/haykam821/Block-Lobbers#readme",
+		"issues": "https://github.com/haykam821/Block-Lobbers/issues"
+	},
+	"entrypoints": {
+		"main": [
+			"io.github.haykam821.blocklobbers.BlockLobbers"
+		]
+	},
+	"license": "MIT",
+	"depends": {
+		"fabricloader": ">=0.4.0",
+		"plasmid": ">=0.5.0",
+		"java": ">=17"
+	}
+}

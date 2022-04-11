@@ -1,0 +1,10 @@
+{
+	"type": "blocklobbers:block_lobbers",
+	"icon": "minecraft:yellow_terracotta",
+	"map": "blocklobbers:construction",
+	"players": {
+		"min": 1,
+		"max": 64,
+		"threshold": 2
+	}
+}
