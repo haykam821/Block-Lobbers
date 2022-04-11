@@ -67,12 +67,14 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent {
 		BlockState state = world.getBlockState(pos);
 		if (state.isAir()) return ActionResult.PASS;
 
-		if (this.lobbables.size() < MAX_LOBBABLES) {
-			Lobbable lobbable = new Lobbable(state.getBlock());
-			this.lobbables.add(lobbable);
-
-			this.updateHotbar();
+		if (this.lobbables.size() >= MAX_LOBBABLES) {
+			this.removeTopLobbable();
 		}
+
+		Lobbable lobbable = new Lobbable(state.getBlock());
+		this.lobbables.add(lobbable);
+
+		this.updateHotbar();
 
 		return ActionResult.SUCCESS;
 	}
@@ -83,8 +85,11 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent {
 
 		if (!this.lobbables.isEmpty()) {
 			Lobbable lobbable = this.lobbables.get(0);
-			this.lobbables.remove(0);
-			this.updateHotbar();
+
+			if (this.phase.getConfig().shouldConsumeLobbables()) {
+				this.removeTopLobbable();
+				this.updateHotbar();
+			}
 
 			LobbableEntity entity = new LobbableEntity(BlockLobbers.LOBBABLE_ENTITY_TYPE, player.getWorld(), lobbable);
 			entity.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
@@ -114,6 +119,9 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent {
 		}
 	}
 
+	private void removeTopLobbable() {
+		this.lobbables.remove(0);
+	}
 
 	public Text getWinText() {
 		return new TranslatableText("text.blocklobbers.win", this.getName()).formatted(Formatting.GOLD);
