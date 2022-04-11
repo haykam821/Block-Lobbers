@@ -10,6 +10,7 @@ import io.github.haykam821.blocklobbers.game.player.PlayerEntry;
 import io.github.haykam821.blocklobbers.game.player.WinManager;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -28,10 +29,11 @@ import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
 import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerC2SPacketEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
-public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Remove, GamePlayerEvents.Offer, ItemUseEvent, PlayerDamageEvent, PlayerDeathEvent {
+public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Remove, GamePlayerEvents.Offer, ItemUseEvent, PlayerC2SPacketEvent, PlayerDamageEvent, PlayerDeathEvent {
 	private final GameSpace gameSpace;
 	private final ServerWorld world;
 	private final BlockLobbersMap map;
@@ -70,6 +72,7 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 			activity.listen(GamePlayerEvents.OFFER, phase);
 			activity.listen(GamePlayerEvents.REMOVE, phase);
 			activity.listen(ItemUseEvent.EVENT, phase);
+			activity.listen(PlayerC2SPacketEvent.EVENT, phase);
 			activity.listen(PlayerDamageEvent.EVENT, phase);
 			activity.listen(PlayerDeathEvent.EVENT, phase);
 		});
@@ -136,6 +139,16 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 
 		ItemStack stack = player.getStackInHand(hand);
 		return TypedActionResult.pass(stack);
+	}
+
+	@Override
+	public ActionResult onPacket(ServerPlayerEntity player, Packet<?> packet) {
+		PlayerEntry entry = this.getPlayerEntry(player);
+		if (entry != null) {
+			return entry.onPacket(player, packet);
+		}
+
+		return ActionResult.PASS;
 	}
 
 	@Override

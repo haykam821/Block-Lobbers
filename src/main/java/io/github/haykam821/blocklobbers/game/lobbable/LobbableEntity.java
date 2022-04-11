@@ -1,15 +1,13 @@
 package io.github.haykam821.blocklobbers.game.lobbable;
 
-import java.util.Collections;
-
 import eu.pb4.polymer.api.entity.PolymerEntity;
+import io.github.haykam821.blocklobbers.game.player.VelocityHelper;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.thrown.ThrownEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
@@ -53,7 +51,7 @@ public class LobbableEntity extends ThrownEntity implements PolymerEntity {
 
 		if (entity instanceof ServerPlayerEntity) {
 			ServerPlayerEntity player = (ServerPlayerEntity) entity;
-			player.networkHandler.sendPacket(new ExplosionS2CPacket(0, 0, 0, 0, Collections.emptyList(), velocity));
+			VelocityHelper.sendVelocityPacket(player, velocity);
 		} else {
 			entity.setVelocity(velocity);
 		}
