@@ -1,6 +1,7 @@
 package io.github.haykam821.blocklobbers;
 
 import io.github.haykam821.blocklobbers.game.BlockLobbersConfig;
+import io.github.haykam821.blocklobbers.game.lobbable.LobbableBehavior;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableEntity;
 import io.github.haykam821.blocklobbers.game.phase.BlockLobbersWaitingPhase;
 import net.fabricmc.api.ModInitializer;
@@ -32,5 +33,7 @@ public class BlockLobbers implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Registry.register(Registry.ENTITY_TYPE, LOBBABLE_ID, LOBBABLE_ENTITY_TYPE);
+
+		LobbableBehavior.registerDefaults();
 	}
 }

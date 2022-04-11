@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.github.haykam821.blocklobbers.BlockLobbers;
 import io.github.haykam821.blocklobbers.game.lobbable.Lobbable;
+import io.github.haykam821.blocklobbers.game.lobbable.LobbableBehavior;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableEntity;
 import io.github.haykam821.blocklobbers.game.phase.BlockLobbersActivePhase;
 import net.minecraft.block.BlockState;
@@ -71,9 +72,7 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent {
 			this.removeTopLobbable();
 		}
 
-		Lobbable lobbable = new Lobbable(state.getBlock());
-		this.lobbables.add(lobbable);
-
+		this.lobbables.add(LobbableBehavior.create(state));
 		this.updateHotbar();
 
 		return ActionResult.SUCCESS;
