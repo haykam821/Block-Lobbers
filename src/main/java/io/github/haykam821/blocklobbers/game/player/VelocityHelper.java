@@ -2,6 +2,7 @@ package io.github.haykam821.blocklobbers.game.player;
 
 import java.util.Collections;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -11,6 +12,15 @@ public class VelocityHelper {
 
 	private static final double LEAP_MIN_Y = 0.15;
 	private static final double STEALTHY_LEAP_MIN_Y = 0;
+
+	public static void setVelocity(Entity entity, Vec3d velocity) {
+		if (entity instanceof ServerPlayerEntity) {
+			ServerPlayerEntity player = (ServerPlayerEntity) entity;
+			VelocityHelper.sendVelocityPacket(player, velocity);
+		} else {
+			entity.setVelocity(velocity);
+		}
+	}
 
 	public static void sendVelocityPacket(ServerPlayerEntity player, Vec3d velocity) {
 		player.networkHandler.sendPacket(new ExplosionS2CPacket(0, 0, 0, 0, Collections.emptyList(), velocity));
