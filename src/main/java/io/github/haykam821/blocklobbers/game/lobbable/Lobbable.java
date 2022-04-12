@@ -15,7 +15,8 @@ import net.minecraft.world.WorldEvents;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public class Lobbable {
-	private static final double KNOCKBACK_STRENGTH = 0.8;
+	private static final double KNOCKBACK_STRENGTH = 1.3;
+	private static final double AFFECTED_RANGE = 1.5;
 
 	private final BlockState state;
 
@@ -42,20 +43,26 @@ public class Lobbable {
 		return builder.build();
 	}
 
-	private Vec3d getKnockbackVelocity(Vec3d lobbableVelocity) {
-		return lobbableVelocity
+	private Vec3d getKnockbackVelocity(Vec3d lobbableVelocity, Entity affected) {
+		Vec3d velocity = lobbableVelocity
 			.normalize()
 			.multiply(KNOCKBACK_STRENGTH);
+
+		if (affected.isOnGround()) {
+			double y = Math.max(0, velocity.getY() * -2);
+			velocity = new Vec3d(velocity.getX(), y, velocity.getY());
+		}
+
+		return velocity;
 	}
 
 	/**
 	 * @return whether the lobbable entity should be discarded after the collision
 	 */
 	public boolean onCollide(ServerWorld world, LobbableEntity entity, Vec3d pos) {
-		Box affectedBox = entity.getBoundingBox().expand(0.5);
-		Vec3d knockbackVelocity = this.getKnockbackVelocity(entity.getVelocity());
-
+		Box affectedBox = entity.getBoundingBox().expand(AFFECTED_RANGE);
 		for (Entity affected : world.getOtherEntities(entity, affectedBox)) {
+			Vec3d knockbackVelocity = this.getKnockbackVelocity(entity.getVelocity(), affected);
 			VelocityHelper.setVelocity(affected, knockbackVelocity);
 		}
 
