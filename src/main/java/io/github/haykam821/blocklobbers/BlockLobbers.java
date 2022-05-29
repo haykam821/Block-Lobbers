@@ -1,5 +1,6 @@
 package io.github.haykam821.blocklobbers;
 
+import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import io.github.haykam821.blocklobbers.game.BlockLobbersConfig;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableBehavior;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableEntity;
@@ -33,6 +34,7 @@ public class BlockLobbers implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Registry.register(Registry.ENTITY_TYPE, LOBBABLE_ID, LOBBABLE_ENTITY_TYPE);
+		PolymerEntityUtils.registerType(LOBBABLE_ENTITY_TYPE);
 
 		LobbableBehavior.registerDefaults();
 	}
