@@ -1,6 +1,6 @@
 package io.github.haykam821.blocklobbers;
 
-import eu.pb4.polymer.api.entity.PolymerEntityUtils;
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import io.github.haykam821.blocklobbers.game.BlockLobbersConfig;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableBehavior;
 import io.github.haykam821.blocklobbers.game.lobbable.LobbableEntity;
@@ -10,8 +10,9 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.game.GameType;
 
 public class BlockLobbers implements ModInitializer {
@@ -33,7 +34,7 @@ public class BlockLobbers implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		Registry.register(Registry.ENTITY_TYPE, LOBBABLE_ID, LOBBABLE_ENTITY_TYPE);
+		Registry.register(Registries.ENTITY_TYPE, LOBBABLE_ID, LOBBABLE_ENTITY_TYPE);
 		PolymerEntityUtils.registerType(LOBBABLE_ENTITY_TYPE);
 
 		LobbableBehavior.registerDefaults();
