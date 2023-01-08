@@ -1,11 +1,13 @@
 package io.github.haykam821.blocklobbers.game.lobbable;
 
-import eu.pb4.polymer.api.entity.PolymerEntity;
+import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.thrown.ThrownEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -44,12 +46,12 @@ public class LobbableEntity extends ThrownEntity implements PolymerEntity {
 	}
 
 	@Override
-	public EntityType<?> getPolymerEntityType() {
+	public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
 		return EntityType.FALLING_BLOCK;
 	}
 	
 	@Override
-	public Packet<?> createSpawnPacket() {
+	public Packet<ClientPlayPacketListener> createSpawnPacket() {
 		return new EntitySpawnS2CPacket(this, this.lobbable.getRawId());
 	}
 

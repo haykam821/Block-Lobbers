@@ -24,7 +24,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -171,11 +170,11 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 	}
 
 	public Text getWinText() {
-		return new TranslatableText("text.blocklobbers.win", this.getName()).formatted(Formatting.GOLD);
+		return Text.translatable("text.blocklobbers.win", this.getName()).formatted(Formatting.GOLD);
 	}
 
 	public Text getEliminatedText(String suffix) {
-		return new TranslatableText("text.blocklobbers.eliminated" + suffix, this.getName()).formatted(Formatting.RED);
+		return Text.translatable("text.blocklobbers.eliminated" + suffix, this.getName()).formatted(Formatting.RED);
 	}
 
 	// Getters

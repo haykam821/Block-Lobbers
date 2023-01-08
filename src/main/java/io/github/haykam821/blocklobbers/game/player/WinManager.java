@@ -2,7 +2,6 @@ package io.github.haykam821.blocklobbers.game.player;
 
 import io.github.haykam821.blocklobbers.game.phase.BlockLobbersActivePhase;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class WinManager {
@@ -15,7 +14,7 @@ public class WinManager {
 	}
 
 	private Text getNoWinnersText() {
-		return new TranslatableText("text.blocklobbers.no_winners").formatted(Formatting.GOLD);
+		return Text.translatable("text.blocklobbers.no_winners").formatted(Formatting.GOLD);
 	}
 
 	public boolean checkForWinner() {
