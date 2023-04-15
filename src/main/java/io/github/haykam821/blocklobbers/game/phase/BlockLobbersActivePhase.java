@@ -10,7 +10,7 @@ import io.github.haykam821.blocklobbers.game.player.PlayerEntry;
 import io.github.haykam821.blocklobbers.game.player.WinManager;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
