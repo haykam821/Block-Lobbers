@@ -66,7 +66,7 @@ public class Lobbable {
 			VelocityHelper.setVelocity(affected, knockbackVelocity);
 		}
 
-		world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, new BlockPos(pos), this.getRawId());
+		world.syncWorldEvent(WorldEvents.BLOCK_BROKEN, BlockPos.ofFloored(pos), this.getRawId());
 		return true;
 	}
 }

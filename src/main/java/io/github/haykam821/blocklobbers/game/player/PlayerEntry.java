@@ -15,7 +15,7 @@ import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdatePlayerAbilitiesC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -56,7 +56,7 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 
 	public void start() {
 		this.player.changeGameMode(GameMode.SURVIVAL);
-		this.player.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, Integer.MAX_VALUE, 1, true, false, false));
+		this.player.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, StatusEffectInstance.INFINITE, 0, true, false, false));
 		this.updateHotbar();
 
 		this.player.getAbilities().allowFlying = true;
@@ -103,6 +103,7 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 
 			LobbableEntity entity = new LobbableEntity(BlockLobbers.LOBBABLE_ENTITY_TYPE, player.getWorld(), lobbable);
 			entity.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
+			entity.setOwner(player);
 
 			entity.setVelocity(player, player.getPitch(), player.getYaw(), 0, 0.8f, 0);
 			entity.velocityModified = true;
