@@ -68,8 +68,8 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	}
 
 	protected boolean onBlockHit(VoxelShape shape) {
-		if (!this.world.isClient()) {
-			ServerWorld world = (ServerWorld) this.world;
+		if (!this.getWorld().isClient()) {
+			ServerWorld world = (ServerWorld) this.getWorld();
 			return this.lobbable.onCollide(world, this, this.getPos());
 		}
 
@@ -77,8 +77,8 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	}
 
 	protected boolean onEntityHit(Entity entity) {
-		if (!this.world.isClient()) {
-			ServerWorld world = (ServerWorld) this.world;
+		if (!this.getWorld().isClient()) {
+			ServerWorld world = (ServerWorld) this.getWorld();
 			return this.lobbable.onCollide(world, this, entity.getEyePos());
 		}
 
@@ -115,15 +115,17 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 
 		this.setVelocity(velocity);
 
+		World world = this.getWorld();
+
 		// Handle collisions
-		for (VoxelShape shape : this.world.getBlockCollisions(this, this.getBoundingBox())) {
+		for (VoxelShape shape : world.getBlockCollisions(this, this.getBoundingBox())) {
 			if (!shape.isEmpty() && this.onBlockHit(shape)) {
 				this.discard();
 				return;
 			}
 		}
 
-		for (Entity entity : this.world.getOtherEntities(this, this.getBoundingBox(), this::canHit)) {
+		for (Entity entity : world.getOtherEntities(this, this.getBoundingBox(), this::canHit)) {
 			if (this.onEntityHit(entity)) {
 				this.discard();
 				return;
