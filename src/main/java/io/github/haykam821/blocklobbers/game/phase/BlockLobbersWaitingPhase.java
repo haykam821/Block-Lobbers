@@ -7,24 +7,25 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameOpenContext;
-import xyz.nucleoid.plasmid.game.GameOpenProcedure;
-import xyz.nucleoid.plasmid.game.GameResult;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameOpenContext;
+import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.api.game.GameResult;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
-public class BlockLobbersWaitingPhase implements GameActivityEvents.RequestStart, GamePlayerEvents.Add, GamePlayerEvents.Offer, PlayerDamageEvent, PlayerDeathEvent {
+public class BlockLobbersWaitingPhase implements GameActivityEvents.RequestStart, GamePlayerEvents.Accept, PlayerDamageEvent, PlayerDeathEvent {
 	private final GameSpace gameSpace;
 	private final ServerWorld world;
 	private final BlockLobbersMap map;
@@ -79,8 +80,8 @@ public class BlockLobbersWaitingPhase implements GameActivityEvents.RequestStart
 
 			// Listeners
 			activity.listen(GameActivityEvents.REQUEST_START, phase);
-			activity.listen(GamePlayerEvents.ADD, phase);
-			activity.listen(GamePlayerEvents.OFFER, phase);
+			activity.listen(GamePlayerEvents.ACCEPT, phase);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::accept);
 			activity.listen(PlayerDamageEvent.EVENT, phase);
 			activity.listen(PlayerDeathEvent.EVENT, phase);
 		});
@@ -94,25 +95,20 @@ public class BlockLobbersWaitingPhase implements GameActivityEvents.RequestStart
 	}
 
 	@Override
-	public void onAddPlayer(ServerPlayerEntity player) {
-		this.map.spawnAtWaiting(this.world, player);
-	}
-
-	@Override
-	public PlayerOfferResult onOfferPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, this.map.getWaitingSpawnPos()).and(() -> {
-			offer.player().changeGameMode(GameMode.SURVIVAL);
+	public JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return acceptor.teleport(this.world, this.map.getWaitingSpawnPos()).thenRunForEach(player -> {
+			player.changeGameMode(GameMode.SURVIVAL);
 		});
 	}
 
 	@Override
-	public ActionResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
-		return ActionResult.FAIL;
+	public EventResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		return EventResult.DENY;
 	}
 
 	@Override
-	public ActionResult onDeath(ServerPlayerEntity player, DamageSource source) {
+	public EventResult onDeath(ServerPlayerEntity player, DamageSource source) {
 		this.map.spawnAtWaiting(this.world, player);
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 }

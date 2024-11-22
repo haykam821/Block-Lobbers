@@ -25,6 +25,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	private static final Vec3d ANCHOR_OFFSET = new Vec3d(-0.5d, 0, -0.5d);
@@ -56,6 +57,7 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 
 		BlockDisplayElement blockDisplay = new BlockDisplayElement(lobbable.getBlock().getDefaultState());
 		blockDisplay.setOffset(ANCHOR_OFFSET);
+		blockDisplay.ignorePositionUpdates();
 		this.holder.addElement(blockDisplay);
 
 		VirtualEntityUtils.addVirtualPassenger(this, blockDisplay.getEntityId());
@@ -94,9 +96,6 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	public void tick() {
 		super.tick();
 
-		this.checkBlockCollision();
-		this.updateRotation();
-
 		// Update position
 		Vec3d velocity = this.getVelocity();
 
@@ -114,6 +113,9 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 		}
 
 		this.setVelocity(velocity);
+
+		this.updateRotation();
+		this.tickBlockCollision();
 
 		World world = this.getWorld();
 
@@ -144,7 +146,7 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	}
 
 	@Override
-	public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
+	public EntityType<?> getPolymerEntityType(PacketContext context) {
 		return EntityType.ARMOR_STAND;
 	}
 
@@ -165,11 +167,11 @@ public class LobbableEntity extends ProjectileEntity implements PolymerEntity {
 	}
 
 	@Override
-	protected void initDataTracker() {
+	protected void initDataTracker(DataTracker.Builder builder) {
 		return;
 	}
 
-	protected float getGravity() {
-		return 0.05f;
+	protected double getGravity() {
+		return 0.05;
 	}
 }

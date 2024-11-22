@@ -1,25 +1,26 @@
 package io.github.haykam821.blocklobbers.game;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.util.Identifier;
-import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
+import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 
 public class BlockLobbersConfig {
-	public static final Codec<BlockLobbersConfig> CODEC = RecordCodecBuilder.create(instance -> {
+	public static final MapCodec<BlockLobbersConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> {
 		return instance.group(
 			Identifier.CODEC.fieldOf("map").forGetter(BlockLobbersConfig::getMap),
-			PlayerConfig.CODEC.fieldOf("players").forGetter(BlockLobbersConfig::getPlayerConfig),
+			WaitingLobbyConfig.CODEC.fieldOf("players").forGetter(BlockLobbersConfig::getPlayerConfig),
 			Codec.BOOL.optionalFieldOf("consume_lobbables", true).forGetter(BlockLobbersConfig::shouldConsumeLobbables)
 		).apply(instance, BlockLobbersConfig::new);
 	});
 
 	private final Identifier map;
-	private final PlayerConfig playerConfig;
+	private final WaitingLobbyConfig playerConfig;
 	private final boolean consumeLobbables;
 
-	public BlockLobbersConfig(Identifier map, PlayerConfig playerConfig, boolean consumeLobbables) {
+	public BlockLobbersConfig(Identifier map, WaitingLobbyConfig playerConfig, boolean consumeLobbables) {
 		this.map = map;
 		this.playerConfig = playerConfig;
 		this.consumeLobbables = consumeLobbables;
@@ -29,7 +30,7 @@ public class BlockLobbersConfig {
 		return this.map;
 	}
 
-	public PlayerConfig getPlayerConfig() {
+	public WaitingLobbyConfig getPlayerConfig() {
 		return this.playerConfig;
 	}
 

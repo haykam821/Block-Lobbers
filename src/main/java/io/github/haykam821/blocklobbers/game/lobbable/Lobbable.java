@@ -3,16 +3,15 @@ package io.github.haykam821.blocklobbers.game.lobbable;
 import io.github.haykam821.blocklobbers.game.player.VelocityHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.Enchantments;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemStack.TooltipSection;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldEvents;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 public class Lobbable {
 	private static final double KNOCKBACK_STRENGTH = 1.3;
@@ -36,8 +35,7 @@ public class Lobbable {
 		ItemStackBuilder builder = ItemStackBuilder.of(this.state.getBlock());
 
 		if (top) {
-			builder.addEnchantment(Enchantments.INFINITY, 1);
-			builder.hideFlag(TooltipSection.ENCHANTMENTS);
+			builder.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 		}
 
 		return builder.build();

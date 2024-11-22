@@ -1,14 +1,14 @@
 package io.github.haykam821.blocklobbers.game.player;
 
-import java.util.Collections;
+import java.util.Optional;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.explosion.Explosion.DestructionType;
 
 public class VelocityHelper {
 	private static final double LEAP_MULTIPLIER = 0.9;
@@ -26,7 +26,7 @@ public class VelocityHelper {
 	}
 
 	public static void sendVelocityPacket(ServerPlayerEntity player, Vec3d velocity) {
-		player.networkHandler.sendPacket(new ExplosionS2CPacket(0, 0, 0, 0, Collections.emptyList(), velocity, DestructionType.KEEP, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.INTENTIONALLY_EMPTY));
+		player.networkHandler.sendPacket(new ExplosionS2CPacket(Vec3d.ZERO, Optional.of(velocity), ParticleTypes.EXPLOSION, RegistryEntry.of(SoundEvents.INTENTIONALLY_EMPTY)));
 	}
 
 	public static void sendLeapVelocityPacket(ServerPlayerEntity player) {

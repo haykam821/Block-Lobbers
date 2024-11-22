@@ -27,11 +27,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerC2SPacketEvent;
@@ -75,9 +75,9 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 
 	// Listeners
 	@Override
-	public ActionResult onBreak(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+	public EventResult onBreak(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
 		BlockState state = world.getBlockState(pos);
-		if (state.isAir()) return ActionResult.PASS;
+		if (state.isAir()) return EventResult.PASS;
 
 		if (this.lobbables.size() >= MAX_LOBBABLES) {
 			this.removeTopLobbable();
@@ -86,13 +86,11 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 		this.lobbables.add(LobbableBehavior.create(state));
 		this.updateHotbar();
 
-		return ActionResult.SUCCESS;
+		return EventResult.ALLOW;
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> onUse(ServerPlayerEntity player, Hand hand) {
-		ItemStack stack = player.getStackInHand(hand);
-
+	public ActionResult onUse(ServerPlayerEntity player, Hand hand) {
 		if (!this.lobbables.isEmpty()) {
 			Lobbable lobbable = this.lobbables.get(0);
 
@@ -111,11 +109,11 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 			player.getWorld().spawnEntity(entity);
 		}
 
-		return TypedActionResult.fail(stack);
+		return ActionResult.FAIL;
 	}
 
 	@Override
-	public ActionResult onPacket(ServerPlayerEntity player, Packet<?> packet) {
+	public EventResult onPacket(ServerPlayerEntity player, Packet<?> packet) {
 		if (packet instanceof UpdatePlayerAbilitiesC2SPacket) {
 			UpdatePlayerAbilitiesC2SPacket abilitiesPacket = (UpdatePlayerAbilitiesC2SPacket) packet;
 			PlayerAbilities abilities = player.getAbilities();
@@ -137,7 +135,7 @@ public class PlayerEntry implements BlockBreakEvent, ItemUseEvent, PlayerC2SPack
 			this.updateExperienceBar(player);
 		}
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	// Utilities

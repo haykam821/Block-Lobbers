@@ -9,31 +9,31 @@ import io.github.haykam821.blocklobbers.game.map.BlockLobbersMap;
 import io.github.haykam821.blocklobbers.game.player.PlayerEntry;
 import io.github.haykam821.blocklobbers.game.player.WinManager;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerC2SPacketEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
-public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Remove, GamePlayerEvents.Offer, ItemUseEvent, PlayerC2SPacketEvent, PlayerDamageEvent, PlayerDeathEvent {
+public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Remove, GamePlayerEvents.Accept, ItemUseEvent, PlayerC2SPacketEvent, PlayerDamageEvent, PlayerDeathEvent {
 	private final GameSpace gameSpace;
 	private final ServerWorld world;
 	private final BlockLobbersMap map;
@@ -49,7 +49,7 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 		this.map = map;
 		this.config = config;
 
-		this.players = gameSpace.getPlayers().stream().map(player -> {
+		this.players = gameSpace.getPlayers().participants().stream().map(player -> {
 			return new PlayerEntry(this, player);
 		}).collect(Collectors.toSet());
 		this.winManager = new WinManager(this, this.players.size() == 1);
@@ -69,7 +69,8 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 			activity.listen(BlockBreakEvent.EVENT, phase);
 			activity.listen(GameActivityEvents.ENABLE, phase);
 			activity.listen(GameActivityEvents.TICK, phase);
-			activity.listen(GamePlayerEvents.OFFER, phase);
+			activity.listen(GamePlayerEvents.ACCEPT, phase);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::acceptSpectators);
 			activity.listen(GamePlayerEvents.REMOVE, phase);
 			activity.listen(ItemUseEvent.EVENT, phase);
 			activity.listen(PlayerC2SPacketEvent.EVENT, phase);
@@ -80,13 +81,13 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 
 	// Listeners
 	@Override
-	public ActionResult onBreak(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+	public EventResult onBreak(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
 		PlayerEntry entry = this.getPlayerEntry(player);
 		if (entry != null) {
 			return entry.onBreak(player, world, pos);
 		}
 
-		return ActionResult.PASS;
+		return EventResult.PASS;
 	}
 
 	@Override
@@ -95,6 +96,11 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 
 		for (PlayerEntry entry : this.players) {
 			entry.start();
+		}
+
+		for (ServerPlayerEntity player : this.gameSpace.getPlayers().spectators()) {
+			this.map.spawnAtWaiting(this.world, player);
+			this.setSpectator(player);
 		}
 	}
 
@@ -124,46 +130,45 @@ public class BlockLobbersActivePhase implements BlockBreakEvent, GameActivityEve
 	}
 
 	@Override
-	public PlayerOfferResult onOfferPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, this.map.getWaitingSpawnPos()).and(() -> {
-			this.setSpectator(offer.player());
+	public JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return acceptor.teleport(this.world, this.map.getWaitingSpawnPos()).thenRunForEach(player -> {
+			this.setSpectator(player);
 		});
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> onUse(ServerPlayerEntity player, Hand hand) {
+	public ActionResult onUse(ServerPlayerEntity player, Hand hand) {
 		PlayerEntry entry = this.getPlayerEntry(player);
 		if (entry != null) {
 			return entry.onUse(player, hand);
-		}
-
-		ItemStack stack = player.getStackInHand(hand);
-		return TypedActionResult.pass(stack);
-	}
-
-	@Override
-	public ActionResult onPacket(ServerPlayerEntity player, Packet<?> packet) {
-		PlayerEntry entry = this.getPlayerEntry(player);
-		if (entry != null) {
-			return entry.onPacket(player, packet);
 		}
 
 		return ActionResult.PASS;
 	}
 
 	@Override
-	public ActionResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
-		return ActionResult.FAIL;
+	public EventResult onPacket(ServerPlayerEntity player, Packet<?> packet) {
+		PlayerEntry entry = this.getPlayerEntry(player);
+		if (entry != null) {
+			return entry.onPacket(player, packet);
+		}
+
+		return EventResult.PASS;
 	}
 
 	@Override
-	public ActionResult onDeath(ServerPlayerEntity player, DamageSource source) {
+	public EventResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		return EventResult.DENY;
+	}
+
+	@Override
+	public EventResult onDeath(ServerPlayerEntity player, DamageSource source) {
 		PlayerEntry entry = this.getPlayerEntry(player);
 		if (entry != null) {
 			this.eliminate(entry, true);
 		}
 
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
 	// Getters
